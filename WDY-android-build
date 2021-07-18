@@ -10,8 +10,9 @@ fi
 
 DIR=$(readlink -f $(dirname $0))
 
+export CFLAGS="-fexceptions"
 
-${WDY_XBUILD_ROOT}/bin/cmake-android-build ${DIR} --asm-by-cc -Dld-version-script=OFF
+${WDY_XBUILD_ROOT}/bin/cmake-android-build ${DIR} --asm-by-cc -Dld-version-script=OFF -DBUILD_SHARED_LIBS=YES
 
 ${WDY_XBUILD_ROOT}/bin/prepare_libraries.sh
 
