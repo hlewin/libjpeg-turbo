@@ -51,7 +51,7 @@ jobs:
         run: |
           aws s3 sync --acl public-read --delete $HOME/src/ljt.nightly/latest/files/ s3://libjpeg-turbo-pr/${{env.BRANCH}}/${{github.job}}/
   macos:
-    runs-on: macos-latest
+    runs-on: macos-10.15
     steps:
       - name: Set global environment variables
         run: |
@@ -100,7 +100,7 @@ jobs:
         run: |
           mkdir build
           pushd build
-          cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=clang -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer" -DENABLE_SHARED=0 ..
+          cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=clang -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer" -DENABLE_SHARED=0 ..
           export NUMCPUS=`grep -c '^processor' /proc/cpuinfo`
           make -j$NUMCPUS --load-average=$NUMCPUS
           make test
@@ -119,7 +119,9 @@ jobs:
         run: |
           mkdir build
           pushd build
-          cmake -G"Unix Makefiles" -DWITH_12BIT=1 ..
+          cmake -G"Unix Makefiles" -DWITH_12BIT=1 \
+            -DCMAKE_C_FLAGS='--std=gnu90 -Wall -Werror -Wextra -Wpedantic -pedantic-errors -Wdouble-promotion -Wformat-overflow=2 -Wformat-security -Wformat-signedness -Wformat-truncation=2 -Wformat-y2k -Wmissing-include-dirs -Wshift-overflow=2 -Wswitch-bool -Wno-unused-parameter -Wuninitialized -Wstrict-overflow=2 -Wstringop-overflow=4 -Wstringop-truncation -Wduplicated-branches -Wduplicated-cond -Wdeclaration-after-statement -Wshadow -Wunsafe-loop-optimizations -Wundef -Wcast-align -Wno-clobbered -Wjump-misses-init -Wno-sign-compare -Wlogical-op -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wpacked -Wredundant-decls -Wnested-externs -Winline -Wno-long-long -Wdisabled-optimization -Wno-overlength-strings' \
+            ..
           export NUMCPUS=`grep -c '^processor' /proc/cpuinfo`
           make -j$NUMCPUS --load-average=$NUMCPUS
           make test
@@ -139,7 +141,9 @@ jobs:
         run: |
           mkdir build
           pushd build
-          cmake -G"Unix Makefiles" -DWITH_JPEG7=1 -DCMAKE_C_FLAGS=-mx32 ..
+          cmake -G"Unix Makefiles" -DWITH_JPEG7=1 -DCMAKE_C_FLAGS=-mx32 \
+            -DCMAKE_C_FLAGS='--std=gnu90 -Wall -Werror -Wextra -Wpedantic -pedantic-errors -Wdouble-promotion -Wformat-overflow=2 -Wformat-security -Wformat-signedness -Wformat-truncation=2 -Wformat-y2k -Wmissing-include-dirs -Wshift-overflow=2 -Wswitch-bool -Wno-unused-parameter -Wuninitialized -Wstrict-overflow=2 -Wstringop-overflow=4 -Wstringop-truncation -Wduplicated-branches -Wduplicated-cond -Wdeclaration-after-statement -Wshadow -Wunsafe-loop-optimizations -Wundef -Wcast-align -Wno-clobbered -Wjump-misses-init -Wno-sign-compare -Wlogical-op -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wpacked -Wredundant-decls -Wnested-externs -Winline -Wno-long-long -Wdisabled-optimization -Wno-overlength-strings' \
+            ..
           export NUMCPUS=`grep -c '^processor' /proc/cpuinfo`
           make -j$NUMCPUS --load-average=$NUMCPUS
           make test
@@ -161,7 +165,9 @@ jobs:
         run: |
           mkdir build
           pushd build
-          cmake -G"Unix Makefiles" -DWITH_JPEG8=1 ..
+          cmake -G"Unix Makefiles" -DWITH_JPEG8=1 \
+            -DCMAKE_C_FLAGS='--std=gnu90 -Wall -Werror -Wextra -Wpedantic -pedantic-errors -Wdouble-promotion -Wformat-overflow=2 -Wformat-security -Wformat-signedness -Wformat-truncation=2 -Wformat-y2k -Wmissing-include-dirs -Wshift-overflow=2 -Wswitch-bool -Wno-unused-parameter -Wuninitialized -Wstrict-overflow=2 -Wstringop-overflow=4 -Wstringop-truncation -Wduplicated-branches -Wduplicated-cond -Wdeclaration-after-statement -Wshadow -Wunsafe-loop-optimizations -Wundef -Wcast-align -Wno-clobbered -Wjump-misses-init -Wno-sign-compare -Wlogical-op -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wpacked -Wredundant-decls -Wnested-externs -Winline -Wno-long-long -Wdisabled-optimization -Wno-overlength-strings' \
+            ..
           export NUMCPUS=`grep -c '^processor' /proc/cpuinfo`
           make -j$NUMCPUS --load-average=$NUMCPUS
           make test
@@ -180,7 +186,7 @@ jobs:
         run: |
           mkdir build
           pushd build
-          cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=clang -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -g -fsanitize=memory -fPIE" -DWITH_SIMD=0 ..
+          cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=clang -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -g -fsanitize=memory -fno-sanitize-recover=all -fPIE" -DWITH_SIMD=0 ..
           export NUMCPUS=`grep -c '^processor' /proc/cpuinfo`
           make -j$NUMCPUS --load-average=$NUMCPUS
           make test
