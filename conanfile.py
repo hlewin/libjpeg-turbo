@@ -83,9 +83,9 @@ class LibjpegTurboConan(ConanFile):
         return self.options.get_safe("arithmetic_decoder", False) or \
                self.options.libjpeg7_compatibility or self.options.libjpeg8_compatibility
 
-#    def build_requirements(self):
-#        if self.options.get_safe("SIMD") and self.settings.arch in ["x86", "x86_64"]:
-#            self.build_requires("nasm/[]")
+    def build_requirements(self):
+        if self.options.get_safe("SIMD") and self.settings.arch in ["x86", "x86_64"]:
+            self.build_requires("nasm/[]")
 
     def cmake_definitions(self):
         defs = {

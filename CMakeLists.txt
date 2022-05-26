@@ -236,9 +236,9 @@ endif()
 report_option(ENABLE_SHARED "Shared libraries")
 report_option(ENABLE_STATIC "Static libraries")
 
-if(ENABLE_SHARED)
-  set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_FULL_LIBDIR})
-endif()
+#if(ENABLE_SHARED)
+#  set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_FULL_LIBDIR})
+#endif()
 
 if(WITH_JPEG8 OR WITH_JPEG7)
   set(WITH_ARITH_ENC 1)
