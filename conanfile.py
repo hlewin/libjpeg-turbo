@@ -47,28 +47,6 @@ class LibjpegTurboConan(ConanFile):
     python_requires = "wdyConanHelper/[]"
     python_requires_extend = "wdyConanHelper.ConanCMake"
 
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
-        if self.options.shared:
-            del self.options.fPIC
-
-        if self.options.enable12bit:
-            del self.options.java
-            del self.options.turbojpeg
-        if self.options.enable12bit or self.settings.os == "Emscripten":
-            del self.options.SIMD
-        if self.options.enable12bit or self.options.libjpeg7_compatibility or self.options.libjpeg8_compatibility:
-            del self.options.arithmetic_encoder
-            del self.options.arithmetic_decoder
-        if self.options.libjpeg8_compatibility:
-            del self.options.mem_src_dst
-
     def validate(self):
         if self.options.enable12bit and (self.options.libjpeg7_compatibility or self.options.libjpeg8_compatibility):
             raise ConanInvalidConfiguration("12-bit samples is not allowed with libjpeg v7/v8 API/ABI")
