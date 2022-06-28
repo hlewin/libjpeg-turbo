@@ -44,7 +44,7 @@ class LibjpegTurboConan(ConanFile):
 
     no_copy_source = True    
     exports_sources = "*", "!autom4te.cache"
-    python_requires = "wdyConanHelper/[]"
+    python_requires = "wdyConanHelper/[>=1.6.2]"
     python_requires_extend = "wdyConanHelper.ConanCMake"
 
     def validate(self):
