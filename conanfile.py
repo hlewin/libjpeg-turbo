@@ -7,7 +7,7 @@ required_conan_version = ">=1.43.0"
 
 class LibjpegTurboConan(ConanFile):
     name = "libjpeg-turbo"
-    version = "2.1.3"
+    version = "2.1.4"
     
     description = "SIMD-accelerated libjpeg-compatible JPEG codec library"
     topics = ("jpeg", "libjpeg", "image", "multimedia", "format", "graphics")
