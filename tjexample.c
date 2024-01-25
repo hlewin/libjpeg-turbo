@@ -252,6 +252,9 @@ int main(int argc, char **argv)
   inFormat = &inFormat[1];
   outFormat = &outFormat[1];
 
+  if ((tjInstance = tj3Init(TJINIT_TRANSFORM)) == NULL)
+    THROW_TJ("creating TurboJPEG instance");
+
   if (!strcasecmp(inFormat, "jpg")) {
     /* Input image is a JPEG image.  Decompress and/or transform it. */
     long size;
@@ -280,8 +283,6 @@ int main(int argc, char **argv)
       unsigned char *dstBuf = NULL;  /* Dynamically allocate the JPEG buffer */
       size_t dstSize = 0;
 
-      if ((tjInstance = tj3Init(TJINIT_TRANSFORM)) == NULL)
-        THROW_TJ("initializing transformer");
       xform.options |= TJXOPT_TRIM;
       if (tj3Transform(tjInstance, jpegBuf, jpegSize, 1, &dstBuf, &dstSize,
                        &xform) < 0) {
@@ -291,9 +292,6 @@ int main(int argc, char **argv)
       tj3Free(jpegBuf);
       jpegBuf = dstBuf;
       jpegSize = dstSize;
-    } else {
-      if ((tjInstance = tj3Init(TJINIT_DECOMPRESS)) == NULL)
-        THROW_TJ("initializing decompressor");
     }
     if (tj3Set(tjInstance, TJPARAM_FASTUPSAMPLE, fastUpsample) < 0)
       THROW_TJ("setting TJPARAM_FASTUPSAMPLE");
@@ -323,7 +321,6 @@ int main(int argc, char **argv)
         THROW_UNIX("opening output file");
       if (fwrite(jpegBuf, jpegSize, 1, jpegFile) < 1)
         THROW_UNIX("writing output file");
-      fclose(jpegFile);  jpegFile = NULL;
       goto bailout;
     }
 
@@ -353,8 +350,6 @@ int main(int argc, char **argv)
     tj3Destroy(tjInstance);  tjInstance = NULL;
   } else {
     /* Input image is not a JPEG image.  Load it into memory. */
-    if ((tjInstance = tj3Init(TJINIT_COMPRESS)) == NULL)
-      THROW_TJ("initializing compressor");
     if ((imgBuf = tj3LoadImage8(tjInstance, argv[1], &width, 1, &height,
                                 &pixelFormat)) == NULL)
       THROW_TJ("loading input image");
@@ -391,16 +386,12 @@ int main(int argc, char **argv)
     if (tj3Compress8(tjInstance, imgBuf, width, 0, height, pixelFormat,
                      &jpegBuf, &jpegSize) < 0)
       THROW_TJ("compressing image");
-    tj3Destroy(tjInstance);  tjInstance = NULL;
 
     /* Write the JPEG image to disk. */
     if ((jpegFile = fopen(argv[2], "wb")) == NULL)
       THROW_UNIX("opening output file");
     if (fwrite(jpegBuf, jpegSize, 1, jpegFile) < 1)
       THROW_UNIX("writing output file");
-    tj3Destroy(tjInstance);  tjInstance = NULL;
-    fclose(jpegFile);  jpegFile = NULL;
-    tj3Free(jpegBuf);  jpegBuf = NULL;
   } else {
     /* Output image format is not JPEG.  Save the uncompressed image
        directly to disk. */
