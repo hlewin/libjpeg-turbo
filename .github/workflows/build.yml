@@ -17,7 +17,7 @@ jobs:
         run: |
           echo "BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}" >$GITHUB_ENV
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up build
         run: |
           mkdir -p $HOME/src/ljt.nightly
@@ -41,7 +41,7 @@ jobs:
           mv $HOME/src/ljt.nightly/latest/log-${{github.job}}.txt $HOME/src/ljt.nightly/latest/files/
       - name: Configure AWS
         if: ${{github.event_name != 'pull_request'}}
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
@@ -57,7 +57,7 @@ jobs:
         run: |
           echo "BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}" >$GITHUB_ENV
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up build
         run: |
           brew install yasm md5sha1sum
@@ -77,7 +77,7 @@ jobs:
           mv $HOME/src/ljt.nightly/latest/log-${{github.job}}.txt $HOME/src/ljt.nightly/latest/files/
       - name: Configure AWS
         if: ${{github.event_name != 'pull_request'}}
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
@@ -90,10 +90,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up build
         run: |
           sudo apt install -y nasm
+          sudo sysctl vm.mmap_rnd_bits=28
       - name: Build
         env:
           ASAN_OPTIONS: "detect_leaks=1 symbolize=1"
@@ -113,7 +114,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up build
         run: |
           sudo apt update
@@ -138,7 +139,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up build
         run: |
           sudo apt -y install nasm
@@ -149,7 +150,8 @@ jobs:
           mkdir build
           pushd build
           cmake -G"Unix Makefiles" -DWITH_JPEG8=1 \
-            -DCMAKE_C_FLAGS='--std=gnu90 -Wall -Werror -Wextra -Wpedantic -pedantic-errors -Wdouble-promotion -Wformat-overflow=2 -Wformat-security -Wformat-signedness -Wformat-truncation=2 -Wformat-y2k -Wmissing-include-dirs -Wshift-overflow=2 -Wswitch-bool -Wno-unused-parameter -Wuninitialized -Wstrict-overflow=2 -Wstringop-overflow=4 -Wstringop-truncation -Wduplicated-branches -Wduplicated-cond -Wdeclaration-after-statement -Wshadow -Wunsafe-loop-optimizations -Wundef -Wcast-align -Wno-clobbered -Wjump-misses-init -Wno-sign-compare -Wlogical-op -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wpacked -Wredundant-decls -Wnested-externs -Winline -Wno-long-long -Wdisabled-optimization -Wno-overlength-strings' \
+            -DCMAKE_C_FLAGS='--std=gnu90 -Wall -Werror -Wextra -Wmost -Wnon-gcc -Wpedantic -pedantic-errors -Walloca -Wanon-enum-enum-conversion -Warray-bounds-pointer-arithmetic -Wbitfield-enum-conversion -Wc99-extensions -Wc2x-extensions -Wcast-function-type -Wcompound-token-split -Wdate-time -Wdeclaration-after-statement -Wdeprecated -Wdocumentation -Wdocumentation-pedantic -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicate-enum -Wempty-init-stmt -Wexpansion-to-defined -Wextra-semi -Wformat=2 -Wformat-non-iso -Wno-format-nonliteral -Wformat-pedantic -Wformat-type-confusion -Wfour-char-constants -Wgcc-compat -Wgnu -Wheader-hygiene -Widiomatic-parentheses -Wignored-qualifiers -Wimplicit-fallthrough -Wno-implicit-int-conversion -Wincompatible-function-pointer-types -Wno-long-long -Wloop-analysis -Wmain -Wmax-tokens -Wmisleading-indentation -Wmissing-field-initializers -Wmissing-prototypes -Wmissing-variable-declarations -Wnewline-eof -Wnonportable-system-include-path -Wnullable-to-nonnull-conversion -Wold-style-cast -Wover-aligned -Wparentheses -Wpointer-arith -Wpragmas -Wpre-c2x-compat -Wredundant-parens -Wself-assign -Wshadow-all -Wshift-sign-overflow -Wno-shorten-64-to-32 -Wno-sign-conversion -Wsometimes-uninitialized -Wstatic-in-inline -Wstrict-prototypes -Wswitch-default -Wtautological-constant-in-range-compare -Wthread-safety -Wthread-safety-verbose -Wunaligned-access -Wundef -Wundef-prefix -Wundefined-func-template -Wuninitialized -Wunneeded-internal-declaration -Wunreachable-code-fallthrough -Wno-unused-command-line-argument -Wunused-member-function -Wno-unused-parameter -Wvariadic-macros -Wzero-as-null-pointer-constant -Wzero-length-array -fcf-protection' \
+            -DCMAKE_C_COMPILER=clang-14 \
             ..
           export NUMCPUS=`grep -c '^processor' /proc/cpuinfo`
           make -j$NUMCPUS --load-average=$NUMCPUS
@@ -162,14 +164,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Set up build
+        run: |
+          sudo sysctl vm.mmap_rnd_bits=28
       - name: Build
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         run: |
           mkdir build
           pushd build
-          cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=clang -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O0 -g -fsanitize=memory -fno-sanitize-recover=all -fPIE" -DWITH_SIMD=0 ..
+          cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=clang -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O0 -g -fsanitize=memory -fsanitize-memory-param-retval -fno-sanitize-recover=all -fPIE" -DWITH_SIMD=0 ..
           export NUMCPUS=`grep -c '^processor' /proc/cpuinfo`
           make -j$NUMCPUS --load-average=$NUMCPUS
           make test
